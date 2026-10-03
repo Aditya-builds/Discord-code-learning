@@ -1,7 +1,10 @@
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 
 from discord_bot.claude_chat import ClaudeChat
+from discord_bot.storage import BotStorage
 
 
 class FakeMessages:
@@ -54,6 +57,18 @@ class ClaudeChatTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(RuntimeError):
             await chat.ask(1, "Alice", "hi")
         self.assertEqual(chat.history[1], [])
+
+    async def test_memory_survives_restart_when_storage_is_given(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = BotStorage(Path(tmp) / "s.json", Path(tmp) / "m.json", Path(tmp) / "c.json")
+            fake = FakeMessages()
+            chat = ClaudeChat(client=SimpleNamespace(messages=fake), storage=storage)
+            await chat.ask(1, "Alice", "capital of France?")
+
+            # A new ClaudeChat (like after a bot restart) picks up where the old one left off
+            restarted = ClaudeChat(client=SimpleNamespace(messages=fake), storage=storage)
+            await restarted.ask(1, "Alice", "population?")
+            self.assertEqual(len(fake.calls[1]["messages"]), 3)
 
     async def test_empty_reply_gets_fallback_text(self):
         chat, _ = make_chat(reply="   ")

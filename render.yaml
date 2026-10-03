@@ -1,0 +1,27 @@
+# Render Blueprint: runs the bot as a Background Worker with a persistent disk,
+# so data/ (stored messages, last-seen time, conversation memory) survives redeploys.
+# Persistent disks need a paid instance type, so this uses the "starter" plan.
+services:
+  - type: worker
+    name: discord-claude-bot
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m discord_bot
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: DISCORD_BOT_TOKEN
+        sync: false  # Set in the Render dashboard, never in this file
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+      - key: CLAUDE_MODEL
+        value: claude-haiku-4-5
+      - key: BOT_DATA_DIR
+        value: /var/data
+    disk:
+      name: bot-data
+      mountPath: /var/data
+      sizeGB: 1

@@ -1,12 +1,12 @@
 from .config import DISCORD_LIMIT
 
 
-def strip_mention(content, user_id):
+def strip_mention(content: str, user_id: int) -> str:
     # Mentions can look like <@id> or <@!id> (nickname mention)
     return content.replace(f"<@{user_id}>", "").replace(f"<@!{user_id}>", "").strip()
 
 
-def split_message(text, limit=DISCORD_LIMIT):
+def split_message(text: str, limit: int = DISCORD_LIMIT) -> list[str]:
     # Split long replies into chunks, preferring to break on newlines
     chunks = []
     while len(text) > limit:
