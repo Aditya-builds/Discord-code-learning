@@ -23,9 +23,11 @@ MAX_HISTORY = 10  # Messages of context kept per channel (keep it even)
 
 # --- Discord ---
 DISCORD_LIMIT = 2000  # Discord's per-message character limit
-HISTORY_FETCH_LIMIT = 100  # Messages fetched per channel when catching up
+HISTORY_FETCH_LIMIT = None  # Messages fetched per channel when catching up (None = all since last seen)
+WEBHOOK_TIMEOUT = 10  # Seconds
 
 # --- Storage ---
 DATA_DIR = Path(os.environ.get("BOT_DATA_DIR", PROJECT_ROOT / "data"))
 STATE_FILE = DATA_DIR / "bot_state.json"  # Timestamp of the last message we processed
 MESSAGES_FILE = DATA_DIR / "messages.json"  # Every message the bot was tagged in
+CONVERSATIONS_FILE = DATA_DIR / "conversations.json"  # Claude memory per channel

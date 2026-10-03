@@ -27,6 +27,18 @@ class BotStorageTests(unittest.TestCase):
         BotStorage(self.state_file, self.messages_file).add_message({"text": "hi"})
         self.assertEqual(BotStorage(self.state_file, self.messages_file).messages, [{"text": "hi"}])
 
+    def test_conversations_round_trip_with_int_channel_ids(self):
+        conversations_file = self.state_file.parent / "conversations.json"
+        conversations = {123: [{"role": "user", "content": "Alice: hi"}]}
+        BotStorage(self.state_file, self.messages_file, conversations_file).save_conversations(conversations)
+        loaded = BotStorage(self.state_file, self.messages_file, conversations_file).load_conversations()
+        self.assertEqual(loaded, conversations)
+
+    def test_conversations_disabled_without_file(self):
+        storage = BotStorage(self.state_file, self.messages_file)
+        storage.save_conversations({1: []})
+        self.assertEqual(storage.load_conversations(), {})
+
 
 if __name__ == "__main__":
     unittest.main()
